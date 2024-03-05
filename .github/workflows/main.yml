@@ -1,0 +1,91 @@
+name: lambda-to-validate-extension-for-lex-bot
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Build:
+    runs-on: windows-latest
+    steps:
+      - name: Exit with success
+        run: exit 0
+
+  Unit_Test:
+    needs: Build # This job must run after the Build job
+    runs-on: ubuntu-latest # This job runs on the same platform as the Build job
+    steps:
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_SECRET }}
+
+      - name: Approve Unit-Test Deployment
+        uses: trstringer/manual-approval@v1.7.0
+        with:
+          approvers: MohanSGond
+          secret: ${{ steps.generate_token.outputs.token }}
+          issue-title: Approve Unit-Test Deployment
+          issue-body: |
+            Approved.
+            This e-mail and any files transmitted with it are for the sole use of the intended recipient(s) and may contain confidential and privileged information. If you are not the intended recipient(s), please reply to the sender and destroy all copies of the original message. Any unauthorized review, use, disclosure, dissemination, forwarding, printing or copying of this email, and/or any action taken in reliance on the contents of this e-mail is strictly prohibited and may be unlawful. Where permitted by applicable law, this e-mail and other e-mail communications sent to and from Cognizant e-mail addresses may be monitored.
+
+      - name: Exit with success
+        run: exit 0
+
+  Deploy_to_Development:
+    needs: Unit_Test
+    runs-on: windows-latest
+    permissions:
+      id-token: write # Needed to authenticate with GitHub Packages
+      contents: read # Needed to read the contents of the repository
+    environment:
+      name: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::750344256621:role/CII-GitHub-Account-IAM-Role
+          role-duration-seconds: 900 # optional, defaults to 3600 seconds
+          aws-region: us-east-1 # use your region here.
+
+      - name: Deploy to AWS Lambda
+        run: npx serverless deploy
+
+  Deploy_to_QA:
+    needs: Unit_Test
+    runs-on: windows-latest
+    permissions:
+      id-token: write # Needed to authenticate with GitHub Packages
+      contents: read # Needed to read the contents of the repository
+    environment:
+      name: qa
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::750344256621:role/CII-GitHub-Account-IAM-Role
+          role-duration-seconds: 900 # optional, defaults to 3600 seconds
+          aws-region: us-east-1 # use your region here.
+
+      - name: Deploy to AWS Lambda
+        run: npx serverless deploy

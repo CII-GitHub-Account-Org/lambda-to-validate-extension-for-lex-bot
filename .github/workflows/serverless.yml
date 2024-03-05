@@ -1,0 +1,13 @@
+service: lambda-to-validate-extension-for-lex-bot
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+
+functions:
+  lexbot:
+    handler: src/index.handler
+    environment:
+      DYNAMODB_TABLE_NAME: dynamodb_table_name
