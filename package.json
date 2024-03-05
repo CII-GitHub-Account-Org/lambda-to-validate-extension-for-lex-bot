@@ -4,13 +4,14 @@
   "description": "AWS Lambda function for Lex bot",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "deploy": "serverless deploy"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1034.0",
-    "dotenv": "^10.0.0",
-    "serverless": "^3.38.0"
+    "aws-sdk": "^2.938.0"
+  },
+  "devDependencies": {
+    "jest": "^27.0.6",
+    "serverless": "^2.48.0"
   }
 }
