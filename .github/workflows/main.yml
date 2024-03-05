@@ -1,4 +1,4 @@
-name: lambda-to-validate-extension-for-lex-bot
+name: lambda-validate-extension
 
 on:
   push:

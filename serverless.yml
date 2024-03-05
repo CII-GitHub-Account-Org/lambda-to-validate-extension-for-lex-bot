@@ -1,4 +1,4 @@
-service: lambda-to-validate-extension-for-lex-bot
+service: lambda-validate-extension
 
 provider:
   name: aws
